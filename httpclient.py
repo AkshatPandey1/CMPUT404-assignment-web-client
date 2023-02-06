@@ -27,6 +27,8 @@ import urllib.parse
 
 def help():
     print("httpclient.py [GET/POST] [URL]\n")
+    print("GET example: httpclient.py GET http://www.google.com\n")
+    print("POST example: httpclient.py POST http://www.google.com \"{'name':'value'}\"\n")
 
 
 class HTTPResponse(object):
@@ -143,6 +145,7 @@ class HTTPClient(object):
         # Parse response
         code = self.get_code(response)
         body = self.get_body(response)
+        print(response)
 
         return HTTPResponse(code, body)
 
@@ -161,5 +164,8 @@ if __name__ == "__main__":
         sys.exit(1)
     elif (len(sys.argv) == 3):
         print(client.command(sys.argv[2], sys.argv[1]))
+    elif (len(sys.argv) == 4):  # Allows user to pass in args as a dict
+        sys.argv[3] = eval(sys.argv[3])
+        print(client.command(sys.argv[2], sys.argv[1], sys.argv[3]))
     else:
         print(client.command(sys.argv[1]))
