@@ -46,28 +46,15 @@ class HTTPClient(object):
     def get_code(self, data):
         return int(data.split(" ")[1])
 
-    def get_body(self, data):
-        body = data.split("\r")[-1]
-        # Remove the extra \r in the body
-        body = body[2:]
+    def get_body(self, response):
+        return response.split("\r\n")[-1]
 
     def sendall(self, data):
         self.socket.sendall(data.encode('utf-8'))
+    # read everything from the socket
 
     def close(self):
         self.socket.close()
-
-    # read everything from the socket
-    def recvall(self, sock):
-        buffer = bytearray()
-        done = False
-        while not done:
-            part = sock.recv(1024)
-            if (part):
-                buffer.extend(part)
-            else:
-                done = not part
-        return buffer.decode('utf-8')
 
     def GET(self, url, args=None):
         # Parse url
@@ -101,10 +88,20 @@ class HTTPClient(object):
 
         # Parse response
         code = self.get_code(response)
-        body = response.split("\r\n")[-1]
+        body = self.get_body(response)
 
         return HTTPResponse(code, body)
 
+    def recvall(self, sock):
+        buffer = bytearray()
+        done = False
+        while not done:
+            part = sock.recv(1024)
+            if (part):
+                buffer.extend(part)
+            else:
+                done = not part
+        return buffer.decode('utf-8')
 
     def POST(self, url, args=None):
         # Parse url
@@ -145,7 +142,7 @@ class HTTPClient(object):
 
         # Parse response
         code = self.get_code(response)
-        body = response.split("\r\n")[-1]
+        body = self.get_body(response)
 
         return HTTPResponse(code, body)
 
